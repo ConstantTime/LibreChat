@@ -74,7 +74,6 @@ export function renderModelSpecsWithFolders(specs: TModelSpec[], selectedSpec: s
     return null;
   }
 
-  // Group specs by folder
   const grouped: GroupedSpecs = {};
   const rootSpecs: TModelSpec[] = [];
 
@@ -89,12 +88,10 @@ export function renderModelSpecsWithFolders(specs: TModelSpec[], selectedSpec: s
     }
   });
 
-  // Sort folders alphabetically
   const sortedFolders = Object.keys(grouped).sort((a, b) => 
     a.toLowerCase().localeCompare(b.toLowerCase())
   );
 
-  // Sort specs within each folder by order or label
   sortedFolders.forEach(folder => {
     grouped[folder].sort((a, b) => {
       if (a.order !== undefined && b.order !== undefined) {
@@ -104,7 +101,6 @@ export function renderModelSpecsWithFolders(specs: TModelSpec[], selectedSpec: s
     });
   });
 
-  // Sort root specs
   rootSpecs.sort((a, b) => {
     if (a.order !== undefined && b.order !== undefined) {
       return a.order - b.order;
@@ -114,7 +110,6 @@ export function renderModelSpecsWithFolders(specs: TModelSpec[], selectedSpec: s
 
   return (
     <>
-      {/* Render folders first */}
       {sortedFolders.map((folder) => (
         <ModelSpecFolder
           key={folder}
@@ -123,7 +118,6 @@ export function renderModelSpecsWithFolders(specs: TModelSpec[], selectedSpec: s
           selectedSpec={selectedSpec}
         />
       ))}
-      {/* Render root level specs */}
       {rootSpecs.map((spec) => (
         <ModelSpecItem key={spec.name} spec={spec} isSelected={selectedSpec === spec.name} />
       ))}

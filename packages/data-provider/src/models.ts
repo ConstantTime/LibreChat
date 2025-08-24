@@ -17,9 +17,9 @@ export type TModelSpec = {
   description?: string;
   showIconInMenu?: boolean;
   showIconInHeader?: boolean;
-  iconURL?: string | EModelEndpoint; // Allow using project-included icons
+  iconURL?: string | EModelEndpoint;
   authType?: AuthType;
-  folder?: string; // Optional folder/category for grouping model specs
+  folder?: string;
 };
 
 export const tModelSpecSchema = z.object({
