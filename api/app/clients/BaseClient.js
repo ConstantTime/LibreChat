@@ -520,12 +520,32 @@ class BaseClient {
       payload.length === 1 &&
       payload[0].content === _instructions.content
     ) {
-      const info = `${tokenCount + 3} / ${this.maxContextTokens}`;
-      const errorMessage = `{ "type": "${ErrorTypes.INPUT_LENGTH}", "info": "${info}" }`;
-      logger.warn(
-        `Including instructions, the prompt token count exceeds remaining max token count (${info}).`,
-      );
-      throw new Error(errorMessage);
+      // For Anthropic/agents endpoint, ensure at least one user message is included
+      // even if it means slightly exceeding token limits, as the API requires it
+      if (this.clientName === EModelEndpoint.agents && formattedMessages.length > 0) {
+        logger.warn(
+          `[BaseClient] Payload only contains instructions. Including latest user message for Anthropic API compatibility.`,
+        );
+        // Find the last user or assistant message to include
+        for (let i = formattedMessages.length - 1; i >= 0; i--) {
+          const msg = formattedMessages[i];
+          if (msg.role === 'user' || msg.role === 'assistant') {
+            payload.push(msg);
+            logger.debug(`[BaseClient] Added ${msg.role} message to payload to satisfy API requirements`);
+            break;
+          }
+        }
+      }
+
+      // If still only instructions after attempting to add a message, throw error
+      if (payload.length === 1 && payload[0].content === _instructions.content) {
+        const info = `${tokenCount + 3} / ${this.maxContextTokens}`;
+        const errorMessage = `{ "type": "${ErrorTypes.INPUT_LENGTH}", "info": "${info}" }`;
+        logger.warn(
+          `Including instructions, the prompt token count exceeds remaining max token count (${info}).`,
+        );
+        throw new Error(errorMessage);
+      }
     }
 
     if (usePrevSummary) {
